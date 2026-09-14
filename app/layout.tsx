@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Shell from "@/components/Shell";
 import { LanguageProvider } from "@/lib/i18n";
 
 const geistSans = Geist({
@@ -44,9 +43,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} grain antialiased`}
       >
-        <LanguageProvider>
-          <Shell>{children}</Shell>
-        </LanguageProvider>
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );
