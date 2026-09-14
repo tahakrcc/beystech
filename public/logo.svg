@@ -1,0 +1,13 @@
+<svg width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bmGrad" x1="7" y1="7" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A879FF"/>
+      <stop offset="0.48" stop-color="#6C5CFF"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <path d="M7 10.15c0-1.64.87-3.16 2.29-3.98l8.31-4.8A2.93 2.93 0 0 1 22 3.91v8.22c0 1.64-.87 3.16-2.29 3.98l-8.31 4.8A2.93 2.93 0 0 1 7 18.37v-8.22Z" fill="url(#bmGrad)"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M7 26.05c0-3.38 3.66-5.49 6.59-3.8L21 26.53v-4.61c0-3.52 3.82-5.72 6.87-3.96l10.24 5.91c5.19 3 5.19 10.49 0 13.49L25.8 44.47C17.44 49.3 7 43.26 7 33.61v-7.56Zm13.46 4.42v9.26l8.02-4.63a2.35 2.35 0 0 0 0-4.07l-8.02-4.63v4.07Z" fill="url(#bmGrad)"/>
+  <text x="55" y="33" font-family="'Geist', 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif"
+        font-size="27" font-weight="600" letter-spacing="-1" fill="#F4F5FB">beystech</text>
+</svg>
