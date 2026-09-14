@@ -61,8 +61,8 @@ const tr = {
     ],
   },
   stats: [
-    { v: "50+", l: "Teslim edilen proje" },
-    { v: "8", l: "Yıllık deneyim" },
+    { v: "30+", l: "Teslim edilen proje" },
+    { v: "2", l: "Yıllık deneyim" },
     { v: "%98", l: "Müşteri memnuniyeti" },
     { v: "12", l: "Uzman ekip üyesi" },
   ],
@@ -176,8 +176,8 @@ const en: Dict = {
     ],
   },
   stats: [
-    { v: "50+", l: "Delivered projects" },
-    { v: "8", l: "Years of experience" },
+    { v: "30+", l: "Delivered projects" },
+    { v: "2", l: "Years of experience" },
     { v: "98%", l: "Client satisfaction" },
     { v: "12", l: "Expert team members" },
   ],
