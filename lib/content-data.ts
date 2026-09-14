@@ -10,7 +10,32 @@ export type WorkItem = {
   title: Localized;
   cat: Localized;
   desc: Localized;
+  url?: string; // proje/site linki (girilirse kart tıklanabilir + otomatik önizleme)
+  image?: string; // görsel URL (girilirse önizleme yerine bu kullanılır)
 };
+
+/**
+ * Proje kartı için önizleme görseli:
+ * - image varsa onu,
+ * - yoksa url varsa siteden otomatik ekran görüntüsü (WordPress mShots, ücretsiz),
+ * - ikisi de yoksa null (gradyan gösterilir).
+ */
+export function workPreview(w: { image?: string; url?: string }): string | null {
+  if (w.image && w.image.trim()) return w.image.trim();
+  if (w.url && w.url.trim()) {
+    return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(w.url.trim())}?w=1200`;
+  }
+  return null;
+}
+
+export function domainOf(url?: string): string {
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url.replace(/^https?:\/\//, "").split("/")[0];
+  }
+}
 
 export type TeamMember = {
   id: string;

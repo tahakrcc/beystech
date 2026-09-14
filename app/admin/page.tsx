@@ -7,6 +7,8 @@ import {
   GRADIENT_PRESETS,
   TeamMember,
   WorkItem,
+  workPreview,
+  domainOf,
 } from "@/lib/content-data";
 import { LogoMark } from "@/components/Logo";
 
@@ -252,6 +254,19 @@ function WorksEditor({
               <TextArea label="Açıklama (EN)" value={w.desc.en} onChange={(v) => updateLoc(w.id, "desc", "en", v)} />
               <Field label="Yıl" value={w.year} onChange={(v) => update(w.id, { year: v })} />
               <GradientPicker value={w.grad} onChange={(g) => update(w.id, { grad: g })} />
+              <Field
+                label="Site linki (opsiyonel — girilirse kart tıklanabilir + otomatik önizleme)"
+                value={w.url || ""}
+                onChange={(v) => update(w.id, { url: v })}
+              />
+              <Field
+                label="Görsel URL (opsiyonel — girilirse önizleme yerine bu kullanılır)"
+                value={w.image || ""}
+                onChange={(v) => update(w.id, { image: v })}
+              />
+              <div className="md:col-span-2">
+                <PreviewBox work={w} />
+              </div>
             </div>
           </div>
         ))}
@@ -463,6 +478,33 @@ function GradientPicker({
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+function PreviewBox({ work }: { work: WorkItem }) {
+  const src = workPreview(work);
+  if (!src) {
+    return (
+      <div className="rounded-lg border border-dashed border-border p-4 text-xs text-faint">
+        Site linki veya görsel URL girince burada önizleme görünür.
+      </div>
+    );
+  }
+  return (
+    <div>
+      <span className="mb-1.5 block text-xs text-muted">
+        Önizleme{work.url && !work.image ? ` · ${domainOf(work.url)}` : ""}
+      </span>
+      <div className="aspect-[16/9] w-full max-w-xs overflow-hidden rounded-lg border border-border bg-bg-soft">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="önizleme" className="h-full w-full object-cover" />
+      </div>
+      {work.url && !work.image && (
+        <p className="mt-1.5 text-[11px] text-faint">
+          Site ekran görüntüsü ilk seferde birkaç saniyede oluşur; görünmezse birazdan tekrar bak.
+        </p>
+      )}
     </div>
   );
 }
