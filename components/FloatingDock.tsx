@@ -9,9 +9,9 @@ import { useLang } from "@/lib/i18n";
  *
  * NOT: Aşağıdaki iletişim bilgileri PLACEHOLDER'dır — gerçek numara/e-posta ile değiştirin.
  */
-const PHONE = "+905555555555"; // tel: için
-const WHATSAPP = "905555555555"; // wa.me/ için (başında + yok)
-const EMAIL = "merhaba@beystech.com";
+const PHONE = "+905539580005"; // tel: için
+const WHATSAPP = "905539580005"; // wa.me/ için (başında + yok)
+const EMAIL = "beystechinfo@gmail.com";
 
 export default function FloatingDock() {
   const { t } = useLang();
