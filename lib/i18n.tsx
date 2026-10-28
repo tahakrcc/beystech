@@ -112,7 +112,7 @@ const tr = {
   footer: {
     tagline: "Fikirden ölçeklenen ürüne kadar dijital ürün geliştiren yazılım stüdyosu.",
     services: { title: "Hizmetler", links: ["Web Platformları", "Mobil Uygulama", "Yapay Zeka", "Tasarım"] },
-    company: { title: "Şirket", links: ["Hakkımızda", "İşler", "Ekip", "İletişim"] },
+    company: { title: "Şirket", links: ["Ana sayfa", "İşler", "Ekip", "İletişim"] },
     contact: { title: "İletişim", links: ["info@beystech.com", "İstanbul, Türkiye"] },
     rights: "Tüm hakları saklıdır.",
     privacy: "Gizlilik",
@@ -229,7 +229,7 @@ const en: Dict = {
   footer: {
     tagline: "A software studio building digital products from idea to scale.",
     services: { title: "Services", links: ["Web Platforms", "Mobile Apps", "AI", "Design"] },
-    company: { title: "Company", links: ["About", "Work", "Team", "Contact"] },
+    company: { title: "Company", links: ["Home", "Work", "Team", "Contact"] },
     contact: { title: "Contact", links: ["info@beystech.com", "Istanbul, Türkiye"] },
     rights: "All rights reserved.",
     privacy: "Privacy",

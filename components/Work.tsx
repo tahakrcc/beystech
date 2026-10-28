@@ -7,19 +7,32 @@ import { useLang } from "@/lib/i18n";
 import { useContent } from "@/lib/useContent";
 import { workPreview, domainOf } from "@/lib/content-data";
 
+const conceptImages: Record<string, { title: string; src: string }> = {
+  w1: { title: "Fintech Mobil Cüzdan", src: "/proje-konseptleri/fintech-cuzdan.webp" },
+  w2: { title: "B2B SaaS Panel", src: "/proje-konseptleri/saas-panel.webp" },
+  w3: { title: "AI Destek Asistanı", src: "/proje-konseptleri/ai-destek.webp" },
+  w4: { title: "E-ticaret Yeniden Tasarım", src: "/proje-konseptleri/e-ticaret.webp" },
+};
+
 export default function Work({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t, lang } = useLang();
   const content = useContent();
-  const projects = content.works.map((w) => ({
-    id: w.id,
-    title: w.title[lang],
-    cat: w.cat[lang],
-    desc: w.desc[lang],
-    grad: w.grad,
-    year: w.year,
-    url: w.url,
-    preview: workPreview(w),
-  }));
+  const projects = content.works.map((w) => {
+    const existingPreview = workPreview(w);
+    const concept = conceptImages[w.id];
+    const conceptPreview = !existingPreview && concept?.title === w.title.tr ? concept.src : null;
+    return {
+      id: w.id,
+      title: w.title[lang],
+      cat: w.cat[lang],
+      desc: w.desc[lang],
+      grad: w.grad,
+      year: w.year,
+      url: w.url,
+      preview: existingPreview || conceptPreview,
+      conceptLabel: conceptPreview ? (lang === "tr" ? "Temsili görsel" : "Concept image") : null,
+    };
+  });
 
   return (
     <section id="isler" className="relative py-20">
@@ -56,6 +69,7 @@ function ProjectCard({
   index,
   url,
   preview,
+  conceptLabel,
 }: {
   title: string;
   cat: string;
@@ -65,6 +79,7 @@ function ProjectCard({
   index: number;
   url?: string;
   preview: string | null;
+  conceptLabel: string | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -94,13 +109,12 @@ function ProjectCard({
           />
           {/* önizleme görseli / site ekran görüntüsü */}
           {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
             <motion.img
               style={{ y }}
               src={preview}
               alt={title}
               loading="lazy"
-              className="absolute inset-[-15%] h-[130%] w-[130%] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className="absolute inset-[-15%] h-[130%] w-[130%] max-w-none object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           )}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent_50%)]" />
@@ -114,6 +128,11 @@ function ProjectCard({
           <span className="absolute right-4 top-4 rounded-full bg-black/30 px-3 py-1 text-xs text-white backdrop-blur">
             {year}
           </span>
+          {conceptLabel && (
+            <span className="absolute bottom-4 left-4 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+              {conceptLabel}
+            </span>
+          )}
           {url && (
             <span className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs text-white backdrop-blur">
               {domainOf(url)}

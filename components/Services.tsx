@@ -9,6 +9,7 @@ export default function Services({ hideHeader = false }: { hideHeader?: boolean 
   const { t } = useLang();
   const items = t.services.items.map((it, i) => ({
     n: String(i + 1).padStart(2, "0"),
+    id: ["web", "mobil", "yapay-zeka", "tasarim", "altyapi", "danismanlik"][i],
     ...it,
   }));
 
@@ -47,11 +48,13 @@ export default function Services({ hideHeader = false }: { hideHeader?: boolean 
 
 function Card({
   n,
+  id,
   title,
   desc,
   tags,
 }: {
   n: string;
+  id: string;
   title: string;
   desc: string;
   tags: string[];
@@ -73,10 +76,11 @@ function Card({
 
   return (
     <motion.div
+      id={id}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       style={{ rotateX: rx, rotateY: ry, transformPerspective: 800 }}
-      className="group relative h-full overflow-hidden rounded-2xl border border-border bg-surface/50 p-7 transition-colors hover:border-accent/50"
+      className="group relative h-full scroll-mt-32 overflow-hidden rounded-2xl border border-border bg-surface/50 p-7 transition-colors hover:border-accent/50"
     >
       <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accent/10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
       <div className="mb-6 font-mono text-sm text-faint">{n}</div>
