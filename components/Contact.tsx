@@ -8,12 +8,31 @@ import { useLang } from "@/lib/i18n";
 export default function Contact({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useLang();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Not: Form gönderimi henüz bir servise bağlı değil.
-    // Buraya kendi e-posta/CRM entegrasyonunuzu ekleyebilirsiniz.
-    setSent(true);
+    setSending(true);
+    setError("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      if (!response.ok) throw new Error("Contact form request failed");
+      setSent(true);
+    } catch {
+      setError(t.contact.error);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -58,6 +77,14 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
           ) : (
             <Reveal delay={0.15}>
               <form onSubmit={onSubmit} className="grid gap-4">
+                <input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] h-px w-px opacity-0"
+                />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label={t.contact.name} name="name" placeholder={t.contact.namePh} />
                   <Field label={t.contact.email} name="email" type="email" placeholder="ornek@mail.com" />
@@ -75,11 +102,17 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
                 </div>
                 <button
                   type="submit"
-                  className="group relative mt-2 overflow-hidden rounded-xl bg-text px-7 py-3.5 font-medium text-black"
+                  disabled={sending}
+                  className="group relative mt-2 overflow-hidden rounded-xl bg-text px-7 py-3.5 font-medium text-black disabled:cursor-wait disabled:opacity-70"
                 >
-                  <span className="relative z-10">{t.contact.submit}</span>
+                  <span className="relative z-10">{sending ? t.contact.sending : t.contact.submit}</span>
                   <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-accent-3 via-accent to-accent-2 transition-transform duration-500 group-hover:translate-x-0" />
                 </button>
+                {error && (
+                  <p role="alert" aria-live="polite" className="text-center text-sm text-rose-400">
+                    {error}
+                  </p>
+                )}
               </form>
             </Reveal>
           )}
