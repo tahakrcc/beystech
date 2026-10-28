@@ -47,15 +47,11 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
 
   return (
     <section id="iletisim" className="relative overflow-hidden py-28">
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[150px]"
-        style={{ background: "radial-gradient(circle, var(--accent), transparent 70%)", opacity: 0.25 }}
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
       <div className="container-x relative z-10">
-        <div className="mx-auto max-w-3xl rounded-3xl border border-border bg-surface/50 p-8 backdrop-blur-xl sm:p-12">
+        <div
+          className="mx-auto max-w-3xl rounded-3xl border border-border bg-bg-soft p-8 sm:p-12"
+          style={{ backgroundImage: "radial-gradient(ellipse at 50% 40%, rgba(124, 92, 255, 0.06), transparent 75%)" }}
+        >
           {!hideHeader && (
             <div className="mb-8 text-center">
               <Reveal>
