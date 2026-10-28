@@ -63,7 +63,7 @@ export async function POST(request: Request) {
   }
 
   const from = process.env.RESEND_FROM_EMAIL || "BeysTech <info@beystech.com>";
-  const to = process.env.CONTACT_TO_EMAIL || "merhaba@beystech.com";
+  const to = process.env.CONTACT_TO_EMAIL || "info@beystech.com";
   const resend = new Resend(apiKey);
   const id = crypto.randomUUID();
   try {
