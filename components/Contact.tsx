@@ -106,7 +106,7 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
                     <select name="phoneCountry" value={country} onChange={(e) => setCountry(e.target.value as CountryCode)} aria-label={t.contact.countryCode} autoComplete="country" className="min-w-0 rounded-xl border border-border bg-bg-soft px-3 py-3 text-sm text-text outline-none focus:border-accent sm:w-48">
                       {countries.map(({ code, name, dial }) => <option key={code} value={code}>{name} (+{dial})</option>)}
                     </select>
-                    <input id="contact-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel-national" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={40} placeholder={t.contact.phonePh} aria-describedby="contact-phone-hint" className="min-w-0 flex-1 rounded-xl border border-border bg-bg-soft px-4 py-3 text-text outline-none placeholder:text-faint focus:border-accent" />
+                    <input id="contact-phone" name="phone" type="tel" inputMode="tel" autoComplete="off" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={40} placeholder={t.contact.phonePh} aria-describedby="contact-phone-hint" className="min-w-0 flex-1 rounded-xl border border-border bg-bg-soft px-4 py-3 text-text outline-none placeholder:text-faint focus:border-accent" />
                   </div>
                   <p id="contact-phone-hint" className="mt-2 text-xs text-muted">{t.contact.phoneHint}</p>
                 </div>
