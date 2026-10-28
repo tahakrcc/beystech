@@ -2,6 +2,9 @@
 
 import { motion } from "motion/react";
 import { FormEvent, useState } from "react";
+import type { CountryCode } from "libphonenumber-js";
+import countryNames from "@/lib/phone-countries.json";
+import { normalizePhone } from "@/lib/phone";
 import Reveal from "./Reveal";
 import { useLang } from "@/lib/i18n";
 
@@ -10,9 +13,16 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [country, setCountry] = useState<CountryCode>("TR");
+  const [phone, setPhone] = useState("");
+  const countries = countryNames[lang];
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (normalizePhone(phone, country) === null) {
+      setError(t.contact.phoneError);
+      return;
+    }
     setSending(true);
     setError("");
 
@@ -90,6 +100,16 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
                   <Field label={t.contact.email} name="email" type="email" placeholder="ornek@mail.com" />
                 </div>
                 <Field label={t.contact.company} name="company" placeholder={t.contact.companyPh} required={false} />
+                <div>
+                  <label htmlFor="contact-phone" className="mb-2 block text-sm text-muted">{t.contact.phone}</label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <select name="phoneCountry" value={country} onChange={(e) => setCountry(e.target.value as CountryCode)} aria-label={t.contact.countryCode} autoComplete="country" className="min-w-0 rounded-xl border border-border bg-bg-soft px-3 py-3 text-sm text-text outline-none focus:border-accent sm:w-48">
+                      {countries.map(({ code, name, dial }) => <option key={code} value={code}>{name} (+{dial})</option>)}
+                    </select>
+                    <input id="contact-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel-national" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={40} placeholder={t.contact.phonePh} aria-describedby="contact-phone-hint" className="min-w-0 flex-1 rounded-xl border border-border bg-bg-soft px-4 py-3 text-text outline-none placeholder:text-faint focus:border-accent" />
+                  </div>
+                  <p id="contact-phone-hint" className="mt-2 text-xs text-muted">{t.contact.phoneHint}</p>
+                </div>
                 <div>
                   <label className="mb-2 block text-sm text-muted">{t.contact.project}</label>
                   <textarea

@@ -2,6 +2,7 @@ import { Redis } from "@upstash/redis";
 import { Resend } from "resend";
 import { acknowledgementMail, escapeHtml } from "@/lib/contact-mail";
 import { saveRequest, setDeliveryStatus } from "@/lib/contact-store";
+import { normalizePhone } from "@/lib/phone";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
@@ -14,6 +15,8 @@ type ContactPayload = {
   message?: unknown;
   website?: unknown;
   language?: unknown;
+  phone?: unknown;
+  phoneCountry?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -40,6 +43,7 @@ export async function POST(request: Request) {
   const message = stringValue(payload.message);
   const website = stringValue(payload.website);
   const language = payload.language === "en" ? "en" : "tr";
+  const phone = normalizePhone(stringValue(payload.phone), payload.phoneCountry);
 
   // Honeypot: bots often fill hidden fields. Return success without sending.
   if (website) {
@@ -53,7 +57,8 @@ export async function POST(request: Request) {
     email.length > 254 ||
     company.length > 120 ||
     message.length < 10 ||
-    message.length > 5000
+    message.length > 5000 ||
+    phone === null
   ) {
     return Response.json({ error: "Please check the form fields." }, { status: 400 });
   }
@@ -67,7 +72,7 @@ export async function POST(request: Request) {
   const resend = new Resend(apiKey);
   const id = crypto.randomUUID();
   try {
-    await saveRequest({ id, name, email, company, message, language, createdAt: new Date().toISOString(), acknowledgement: "pending", notification: "pending", replies: [] });
+    await saveRequest({ id, name, email, phone: phone || undefined, company, message, language, createdAt: new Date().toISOString(), acknowledgement: "pending", notification: "pending", replies: [] });
   } catch (error) {
     console.error("Contact storage failed:", error);
     return Response.json({ error: "Request could not be saved." }, { status: 503 });
@@ -76,6 +81,7 @@ export async function POST(request: Request) {
   const text = [
     `Ad Soyad: ${name}`,
     `E-posta: ${email}`,
+    `Telefon: ${phone || "Belirtilmedi"}`,
     `Şirket: ${company || "Belirtilmedi"}`,
     "",
     "Proje:",
@@ -89,7 +95,7 @@ export async function POST(request: Request) {
       replyTo: email,
       subject,
       text,
-      html: contactEmailHtml({ name, email, company, message }),
+      html: contactEmailHtml({ name, email, phone: phone || "", company, message }),
     });
 
     if (error) {
@@ -141,11 +147,13 @@ async function isRateLimited(request: Request) {
 function contactEmailHtml({
   name,
   email,
+  phone,
   company,
   message,
 }: {
   name: string;
   email: string;
+  phone: string;
   company: string;
   message: string;
 }) {
@@ -155,6 +163,7 @@ function contactEmailHtml({
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
         <tr><td style="padding:8px 0;color:#6b7280">Ad Soyad</td><td style="padding:8px 0">${escapeHtml(name)}</td></tr>
         <tr><td style="padding:8px 0;color:#6b7280">E-posta</td><td style="padding:8px 0"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
+        <tr><td style="padding:8px 0;color:#6b7280">Telefon</td><td style="padding:8px 0">${escapeHtml(phone || "Belirtilmedi")}</td></tr>
         <tr><td style="padding:8px 0;color:#6b7280">Şirket</td><td style="padding:8px 0">${escapeHtml(company || "Belirtilmedi")}</td></tr>
       </table>
       <h2 style="font-size:16px;margin:0 0 8px">Proje</h2>

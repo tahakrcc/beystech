@@ -55,6 +55,7 @@ export default function ContactRequests({ token }: { token: string }) {
               <span className="shrink-0 rounded-full bg-accent/15 px-3 py-1 text-xs text-accent-2">{item.replies?.some((r) => r.status === "sent") ? "Yanıtlandı" : "Yeni"}</span>
             </button>
             {open === item.id && <div className="mt-5 space-y-4 border-t border-border pt-4">
+              {item.phone && <p className="text-sm text-muted">Telefon: <a href={`tel:${item.phone}`} className="text-accent-2 hover:underline">{item.phone}</a></p>}
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-text">{item.message}</p>
               <p className="text-xs text-muted">Alındı e-postası: {item.acknowledgement === "sent" ? "gönderildi" : item.acknowledgement === "failed" ? "gönderilemedi" : "beklemede"} · Bildirim: {item.notification === "sent" ? "gönderildi" : item.notification === "failed" ? "gönderilemedi" : "beklemede"}</p>
               {(item.replies || []).map((reply) => <div key={reply.id} className="rounded-xl border border-border bg-bg-soft p-4 text-sm"><div className="mb-2 text-xs text-muted">{new Date(reply.sentAt).toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" })} · {reply.status === "sent" ? "Gönderildi" : reply.status === "failed" ? "Gönderilemedi" : "Durumu kontrol edilmeli"}</div><p className="whitespace-pre-wrap">{reply.message}</p></div>)}
