@@ -1,5 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { Resend } from "resend";
+import { acknowledgementMail, escapeHtml } from "@/lib/contact-mail";
+import { saveRequest, setDeliveryStatus } from "@/lib/contact-store";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_LIMIT_WINDOW_SECONDS = 10 * 60;
@@ -11,6 +13,7 @@ type ContactPayload = {
   company?: unknown;
   message?: unknown;
   website?: unknown;
+  language?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -27,12 +30,16 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return Response.json({ error: "Invalid request body." }, { status: 400 });
+  }
 
   const name = stringValue(payload.name);
   const email = stringValue(payload.email).toLowerCase();
   const company = stringValue(payload.company);
   const message = stringValue(payload.message);
   const website = stringValue(payload.website);
+  const language = payload.language === "en" ? "en" : "tr";
 
   // Honeypot: bots often fill hidden fields. Return success without sending.
   if (website) {
@@ -55,10 +62,17 @@ export async function POST(request: Request) {
     return Response.json({ error: "Too many requests. Please try again later." }, { status: 429 });
   }
 
-  const from = process.env.RESEND_FROM_EMAIL || "BeysTech <iletisim@beystech.com>";
+  const from = process.env.RESEND_FROM_EMAIL || "BeysTech <info@beystech.com>";
   const to = process.env.CONTACT_TO_EMAIL || "merhaba@beystech.com";
   const resend = new Resend(apiKey);
-  const subject = company ? `Yeni proje talebi: ${company}` : `Yeni proje talebi: ${name}`;
+  const id = crypto.randomUUID();
+  try {
+    await saveRequest({ id, name, email, company, message, language, createdAt: new Date().toISOString(), acknowledgement: "pending", notification: "pending", replies: [] });
+  } catch (error) {
+    console.error("Contact storage failed:", error);
+    return Response.json({ error: "Request could not be saved." }, { status: 503 });
+  }
+  const subject = `Yeni proje talebi: ${(company || name).replace(/[\r\n]+/g, " ")}`;
   const text = [
     `Ad Soyad: ${name}`,
     `E-posta: ${email}`,
@@ -80,20 +94,29 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Resend contact email error:", error);
-      return Response.json({ error: "Email could not be sent." }, { status: 502 });
+      await setDeliveryStatus(id, "notification", "failed");
+    } else {
+      await setDeliveryStatus(id, "notification", "sent");
     }
   } catch (error) {
     console.error("Resend contact email request failed:", error);
-    return Response.json({ error: "Email could not be sent." }, { status: 502 });
+    await setDeliveryStatus(id, "notification", "failed").catch(console.error);
+  }
+
+  try {
+    const result = await resend.emails.send({ from: process.env.CUSTOMER_FROM_EMAIL || "BeysTech <info@beystech.com>", to: email, replyTo: to, ...acknowledgementMail(name, language) });
+    if (result.error) console.error("Contact acknowledgement failed:", result.error);
+    await setDeliveryStatus(id, "acknowledgement", result.error ? "failed" : "sent");
+  } catch (error) {
+    console.error("Contact acknowledgement request failed:", error);
+    await setDeliveryStatus(id, "acknowledgement", "failed").catch(console.error);
   }
 
   return Response.json({ ok: true });
 }
-
 function stringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
-
 async function isRateLimited(request: Request) {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -111,7 +134,7 @@ async function isRateLimited(request: Request) {
     return count > RATE_LIMIT_MAX_REQUESTS;
   } catch (error) {
     console.error("Contact rate limit check failed:", error);
-    return false;
+    return true;
   }
 }
 
@@ -138,17 +161,4 @@ function contactEmailHtml({
       <div style="white-space:pre-wrap;line-height:1.6;padding:16px;background:#f3f4f6;border-radius:12px">${escapeHtml(message)}</div>
     </div>
   `;
-}
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>'"]/g, (character) => {
-    const entities: Record<string, string> = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;",
-    };
-    return entities[character];
-  });
 }

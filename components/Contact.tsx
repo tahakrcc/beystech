@@ -6,7 +6,7 @@ import Reveal from "./Reveal";
 import { useLang } from "@/lib/i18n";
 
 export default function Contact({ hideHeader = false }: { hideHeader?: boolean }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(formData)),
+        body: JSON.stringify({ ...Object.fromEntries(formData), language: lang }),
       });
 
       if (!response.ok) throw new Error("Contact form request failed");
@@ -95,6 +95,8 @@ export default function Contact({ hideHeader = false }: { hideHeader?: boolean }
                   <textarea
                     name="message"
                     required
+                    minLength={10}
+                    maxLength={5000}
                     rows={4}
                     placeholder={t.contact.projectPh}
                     className="w-full resize-none rounded-xl border border-border bg-bg-soft px-4 py-3 text-text outline-none transition-colors placeholder:text-faint focus:border-accent"

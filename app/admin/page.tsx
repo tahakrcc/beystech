@@ -11,6 +11,7 @@ import {
   domainOf,
 } from "@/lib/content-data";
 import { LogoMark } from "@/components/Logo";
+import ContactRequests from "@/components/ContactRequests";
 
 const TOKEN_KEY = "beystech-admin-token";
 
@@ -150,6 +151,7 @@ export default function AdminPage() {
           </div>
         </header>
 
+        <ContactRequests token={token} />
         {content && (
           <>
             <WorksEditor content={content} setContent={setContent} />
